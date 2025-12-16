@@ -1,0 +1,89 @@
+import pandas as pd
+import numpy as np
+from statsmodels.tsa.statespace.sarimax import SARIMAX
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+import os
+
+# --- 1. Data Loading ---
+file_path = "data/1999-2023_ghgs.csv"
+try:
+    df_ghgs = pd.read_csv(file_path)
+except FileNotFoundError:
+    print(f"❌ 오류: '{file_path}' 경로에서 파일을 찾을 수 없습니다. 분석을 진행할 수 없습니다.")
+    raise
+
+# --- 2. Data Preprocessing ---
+# Convert '시간' to datetime and set as index
+df_ghgs['시간'] = pd.to_datetime(df_ghgs['시간'])
+df_ghgs = df_ghgs.set_index('시간')
+
+# Select the target series and resample/interpolate
+ts_co2 = df_ghgs['CO2_ppm'].copy()
+
+# SARIMA requires a complete time series. Use time interpolation for missing values.
+ts_co2 = ts_co2.interpolate(method='time')
+
+# --- 3. SARIMA Modeling and Forecasting ---
+# SARIMA parameters: (p, d, q) x (P, D, Q, S). S=12 for monthly seasonality.
+order = (1, 1, 1)
+seasonal_order = (0, 1, 1, 12)
+
+# Fit the SARIMA model
+model = SARIMAX(ts_co2, order=order, seasonal_order=seasonal_order, enforce_stationarity=False, enforce_invertibility=False)
+model_fit = model.fit(disp=False)
+
+# Determine the forecast period: forecast for the next 2 years (24 months)
+n_forecast = 24
+forecast_steps = len(ts_co2) + n_forecast
+
+# Generate the forecast
+forecast_result = model_fit.get_prediction(start=0, end=forecast_steps-1, dynamic=False)
+forecast_mean = forecast_result.predicted_mean
+forecast_ci = forecast_result.conf_int()
+
+# --- 4. Plotting with Korean Font Setting ---
+
+# 4-1. Configure font for Korean (Robust method)
+# Try to find a commonly available Korean font
+
+# Search for common Korean font names
+
+
+plt.figure(figsize=(14, 7))
+
+# 4-2. Plot Historical Data (Observed)
+plt.plot(ts_co2.index, ts_co2.values, label='관측값 (1999-2023)', color='blue')
+
+# 4-3. Plot Forecast (Smoothly connected)
+# Start the prediction plot from the last observed point to ensure connection
+last_observed_date = ts_co2.index[-1]
+# We plot the forecast mean from the last observed point onwards
+plot_series = forecast_mean.loc[last_observed_date:]
+plot_index = plot_series.index
+plot_values = plot_series.values
+
+plt.plot(plot_index, plot_values, label='SARIMA 예측값', color='red', linestyle='--')
+
+# 4-4. Plot Confidence Interval (shaded area)
+# Start the CI plot from the last observed point onwards
+ci_segment = forecast_ci.iloc[len(ts_co2)-1:] 
+plt.fill_between(ci_segment.index, 
+                 ci_segment.iloc[:, 0], 
+                 ci_segment.iloc[:, 1], 
+                 color='red', alpha=0.15, label='95% 신뢰구간')
+
+# 4-5. Set Title and Labels
+plt.title('CO2 배경농도 월별 추이 및 SARIMA 예측 (1999-2025)', fontsize=16)
+plt.xlabel('시간', fontsize=12)
+plt.ylabel('CO2 농도 (ppm)', fontsize=12)
+plt.legend(loc='upper left')
+plt.grid(True, linestyle='--', alpha=0.7)
+
+# 4-6. Save the plot
+output_file = "co2_sarima_forecast_plot_final.png"
+plt.tight_layout()
+plt.savefig(output_file)
+
+print(f"\n✅ SARIMA 예측 그래프가 성공적으로 생성되어 '{output_file}'에 저장되었습니다.")
+print("SARIMA 모델 파라미터: $\\text{SARIMA}(1, 1, 1) \\times (0, 1, 1)_{12}$")
