@@ -1,8 +1,9 @@
 # bigdata_camp
 
 수업 자료
-I. 파이썬 데이터분석 실습파일 깃허브 
-https://github.com/keobooks/python_da_source
+
+1. 파이썬 데이터분석 실습파일 깃허브
+   https://github.com/keobooks/python_da_source
 
 2. 실습 소스코드 링크
 
@@ -13,6 +14,7 @@ https://github.com/keobooks/python_da_source
 https://colab.research.google.com/drive/1plm21lRnjS0icUKGMNOaZTK6LVA81vBd?usp=sharing
 
 3. Google Colab
+4. 
 https://colab.research.google.com/?hl=ko
 
 
