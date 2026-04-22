@@ -4,6 +4,9 @@
 1. Google Colab
 https://colab.research.google.com/?hl=ko
 
+2. 아나콘다 다운로드 위치
+https://repo.anaconda.com/archive/
+
 # ------------------------------------------
 
 수업 자료: 교육
