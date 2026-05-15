@@ -23,4 +23,4 @@ https://repo.anaconda.com/archive/
   https://colab.research.google.com/drive/1plm21lRnjS0icUKGMNOaZTK6LVA81vBd?usp=sharing
 
 2-3. AI기반 주피터노트북 따라하기 노트: py2025_AI_s2.ipynb
-https://colab.research.google.com/drive/1_WiD47zEULalw1sea9w8IBChAbiCnx2C?usp=sharing
+  https://colab.research.google.com/drive/1_WiD47zEULalw1sea9w8IBChAbiCnx2C?usp=sharing
